@@ -1,6 +1,5 @@
-name: CI - Engenharia de Software II (UFS)
+name: Quality Gate - Engenharia de Software II
 
-# Gatilhos: O pipeline corre sempre que houver um Push ou Pull Request
 on:
   push:
     branches: [ main, master ]
@@ -8,26 +7,21 @@ on:
     branches: [ main, master ]
 
 jobs:
-  quality-check:
-    name: Analise de Qualidade Rust
-    runs-on: ubuntu-latest # Usa uma máquina virtual Linux gratuita
-
+  lint-and-style:
+    name: Rust Linting (Clippy)
+    runs-on: ubuntu-latest
+    
     steps:
-      # 1. Descarrega o código do repositório para a máquina virtual
-      - name: Checkout do repositorio
+      - name: Checkout do Código
         uses: actions/checkout@v4
 
-      # 2. Configura o ambiente Rust (necessário para o Screenpipe)
       - name: Instalar Rust Toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy, rustfmt
 
-      # 3. Executa o Rustfmt: Verifica se o código respeita as regras de estilo
-      - name: Verificar formatacao (Rustfmt)
+      - name: Verificar Formatação (Rustfmt)
         run: cargo fmt --all -- --check
 
-      # 4. Executa o Clippy: Procura erros de lógica, bugs comuns e "bad smells"
-      # O parâmetro -D warnings faz o pipeline falhar se houver qualquer aviso
-      - name: Analise estatica (Clippy)
+      - name: Análise Estática (Clippy)
         run: cargo clippy -- -D warnings
