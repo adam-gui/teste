@@ -7,10 +7,10 @@ on:
     branches: [ main, master ]
 
 jobs:
-  lint-and-style:
-    name: Rust Linting (Clippy)
+  rust-quality:
+    name: Rust Linting & Tests
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout do Código
         uses: actions/checkout@v4
@@ -24,4 +24,28 @@ jobs:
         run: cargo fmt --all -- --check
 
       - name: Análise Estática (Clippy)
-        run: cargo clippy -- -D warnings
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Testes (cargo test)
+        run: cargo test --all --all-features
+
+  js-quality:
+    name: JS/TS Tests (Bun)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do Código
+        uses: actions/checkout@v4
+
+      - name: Instalar Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Instalar Dependências
+        working-directory: apps/screenpipe-app-tauri
+        run: bun install
+
+      - name: Testes (Vitest)
+        working-directory: apps/screenpipe-app-tauri
+        run: bun test
